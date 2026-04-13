@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm install:*)",
+      "Bash(npx hardhat:*)",
+      "Bash(./node_modules/.bin/hardhat compile:*)",
+      "Bash(./node_modules/.bin/hardhat run:*)",
+      "WebSearch",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --connect-timeout 10 https://testnet.hsk.xyz)",
+      "Bash(./node_modules/.bin/hardhat verify:*)"
+    ]
+  }
+}

@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 150" width="360" height="150" role="img" aria-label="RWA Collateral Logo">
+  <defs>
+
+    <!-- Outer hexagon background -->
+    <linearGradient id="hexBg" x1="15%" y1="0%" x2="55%" y2="100%">
+      <stop offset="0%"   stop-color="#1A3D8A"/>
+      <stop offset="100%" stop-color="#08153E"/>
+    </linearGradient>
+
+    <!-- Left square fill -->
+    <linearGradient id="lSq" x1="15%" y1="0%" x2="55%" y2="100%">
+      <stop offset="0%"   stop-color="#1E4799" stop-opacity="0.94"/>
+      <stop offset="100%" stop-color="#0B2050" stop-opacity="0.94"/>
+    </linearGradient>
+
+    <!-- Right square fill -->
+    <linearGradient id="rSq" x1="15%" y1="0%" x2="55%" y2="100%">
+      <stop offset="0%"   stop-color="#122C6A" stop-opacity="0.94"/>
+      <stop offset="100%" stop-color="#07122E" stop-opacity="0.94"/>
+    </linearGradient>
+
+    <!-- Gold bar gradient: light at top → dark at bottom (userSpaceOnUse) -->
+    <linearGradient id="gBar" x1="0" y1="66" x2="0" y2="87" gradientUnits="userSpaceOnUse">
+      <stop offset="0%"   stop-color="#FAE680"/>
+      <stop offset="35%"  stop-color="#EEC84A"/>
+      <stop offset="100%" stop-color="#8C5C04"/>
+    </linearGradient>
+
+    <!-- Candle green intersection zone -->
+    <radialGradient id="gZone" cx="50%" cy="50%" r="60%">
+      <stop offset="0%"   stop-color="#80FFD0"/>
+      <stop offset="100%" stop-color="#0A8F55"/>
+    </radialGradient>
+
+    <!-- Gold horizontal underline -->
+    <linearGradient id="gH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#9C6A06"/>
+      <stop offset="50%"  stop-color="#EEC84A"/>
+      <stop offset="100%" stop-color="#FAE680"/>
+    </linearGradient>
+
+    <!-- Clip to left square for intersection zone -->
+    <clipPath id="lSqClip">
+      <rect x="32" y="52" width="44" height="48" rx="3"/>
+    </clipPath>
+
+  </defs>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  OUTER HEXAGON  — center(72,75), R=62           -->
+  <!--  Points: 72,13  125.7,44  125.7,106             -->
+  <!--          72,137  18.3,106  18.3,44               -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <polygon
+    points="72,13 125.7,44 125.7,106 72,137 18.3,106 18.3,44"
+    fill="url(#hexBg)"/>
+  <polygon
+    points="72,13 125.7,44 125.7,106 72,137 18.3,106 18.3,44"
+    fill="none" stroke="#EEC84A" stroke-width="0.9" opacity="0.30"/>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  INNER SQUARE FILLS  (behind the green zone)    -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Left square: x=32–76, y=52–100, center(54,76) -->
+  <rect x="32" y="52" width="44" height="48" rx="3" fill="url(#lSq)"/>
+
+  <!-- Right square: x=68–112, y=52–100, center(90,76) -->
+  <rect x="68" y="52" width="44" height="48" rx="3" fill="url(#rSq)"/>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  CANDLE GREEN BOND ZONE                         -->
+  <!--  Right square clipped to left square            -->
+  <!--  Visible strip: x=68–76 (8px wide lens)         -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <rect x="68" y="52" width="44" height="48" rx="3"
+        fill="url(#gZone)"
+        clip-path="url(#lSqClip)"
+        opacity="0.93"/>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  GOLD BARS — Trapezoid pyramid (1 top, 2 base)  -->
+  <!--  Real ingot shape: wider base, tapered top       -->
+  <!--  Bars centered at x≈51, within x=32–67           -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- TOP BAR (same size as bottom bars, centred above the gap) -->
+  <!-- Centred at x=51, base width 12px, top width 8px, height 8px -->
+  <polygon points="45,76 57,76 55,68 47,68" fill="url(#gBar)"/>
+  <!-- Shine highlight along top edge -->
+  <line x1="47.5" y1="68.8" x2="54.5" y2="68.8"
+        stroke="white" stroke-width="1.5" stroke-opacity="0.32" stroke-linecap="round"/>
+
+  <!-- BOTTOM-LEFT BAR -->
+  <!-- Bottom: x38–50, Top: x40–48, height 8px -->
+  <polygon points="38,87 50,87 48,79 40,79" fill="url(#gBar)"/>
+  <line x1="40.5" y1="79.8" x2="47.5" y2="79.8"
+        stroke="white" stroke-width="1.5" stroke-opacity="0.32" stroke-linecap="round"/>
+
+  <!-- BOTTOM-RIGHT BAR -->
+  <!-- Bottom: x52–64, Top: x54–62, height 8px -->
+  <polygon points="52,87 64,87 62,79 54,79" fill="url(#gBar)"/>
+  <line x1="54.5" y1="79.8" x2="61.5" y2="79.8"
+        stroke="white" stroke-width="1.5" stroke-opacity="0.32" stroke-linecap="round"/>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  CURRENCY SYMBOLS — right square, center x=90   -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- £ (Pound) -->
+  <text x="90" y="69"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-weight="700" font-size="14"
+        fill="white" opacity="0.84">£</text>
+
+  <!-- $ (Dollar) — gold, primary -->
+  <text x="90" y="82"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-weight="700" font-size="15"
+        fill="#EEC84A">$</text>
+
+  <!-- ¥ (Yuan / Yen) -->
+  <text x="90" y="95"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-weight="700" font-size="14"
+        fill="white" opacity="0.84">¥</text>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  SQUARE OUTLINES  (drawn last for crisp edges)  -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Right square: gold ring -->
+  <rect x="68" y="52" width="44" height="48" rx="3"
+        fill="none" stroke="#EEC84A" stroke-width="1.8" stroke-opacity="0.74"/>
+
+  <!-- Left square: white ring — on top for interlocked visual -->
+  <rect x="32" y="52" width="44" height="48" rx="3"
+        fill="none" stroke="white" stroke-width="1.8" stroke-opacity="0.68"/>
+
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  WORDMARK                                        -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- Thin vertical gold rule -->
+  <rect x="144" y="24" width="1.5" height="102" fill="#EEC84A" opacity="0.28" rx="0.75"/>
+
+  <!-- "RWA" — dominant, heavy weight -->
+  <text x="158" y="83"
+        font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+        font-weight="900" font-size="52"
+        fill="#08153E" letter-spacing="-0.5">RWA</text>
+
+  <!-- "COLLATERAL" — light, wide tracking -->
+  <text x="160" y="103"
+        font-family="Arial, Helvetica, sans-serif"
+        font-weight="400" font-size="15"
+        fill="#1B3880" letter-spacing="5.5">COLLATERAL</text>
+
+  <!-- Gold accent underline -->
+  <rect x="158" y="111" width="158" height="3" fill="url(#gH)" rx="1.5"/>
+
+</svg>

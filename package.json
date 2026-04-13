@@ -1,0 +1,23 @@
+{
+  "name": "rwa-collateral-service",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "contracts",
+    "frontend"
+  ],
+  "scripts": {
+    "contracts:compile": "yarn workspace rwa-contracts compile",
+    "contracts:test": "yarn workspace rwa-contracts test",
+    "contracts:deploy:local": "yarn workspace rwa-contracts deploy:local",
+    "contracts:deploy:hashkey-testnet": "yarn workspace rwa-contracts deploy:hashkey-testnet",
+    "contracts:node": "yarn workspace rwa-contracts node",
+    "frontend:dev": "yarn workspace rwa-frontend dev",
+    "frontend:build": "yarn workspace rwa-frontend build",
+    "frontend:start": "yarn workspace rwa-frontend start"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.1.3",
+    "ethers": "^6.16.0"
+  }
+}

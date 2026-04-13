@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+contracts/artifacts/
+contracts/cache/
+contracts/deployments/
+frontend/.next/
+frontend/out/
+
+# Environment files – NEVER commit private keys
+contracts/.env
+frontend/.env.local
+frontend/.env*.local
+*.env.local
+
+# Misc
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts

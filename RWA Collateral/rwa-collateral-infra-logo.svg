@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 124" width="420" height="124" role="img" aria-label="RWA Collateral Infra Logo">
+  <defs>
+    <!-- Deep blue hex gradient -->
+    <linearGradient id="hexGrad" x1="0%" y1="0%" x2="40%" y2="100%">
+      <stop offset="0%" stop-color="#1E4799"/>
+      <stop offset="100%" stop-color="#091840"/>
+    </linearGradient>
+    <!-- Gold horizontal gradient -->
+    <linearGradient id="goldH" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#B8820E"/>
+      <stop offset="60%" stop-color="#EEC84A"/>
+      <stop offset="100%" stop-color="#F7DC80"/>
+    </linearGradient>
+    <!-- Gold vertical gradient (bottom to top = darker to lighter) -->
+    <linearGradient id="goldV" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#B8820E"/>
+      <stop offset="100%" stop-color="#EEC84A"/>
+    </linearGradient>
+    <!-- Subtle glow filter for center node -->
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  ICON MARK — Hexagon, centered (57,62) -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- Hexagon background: pointed-top, R=50 -->
+  <polygon
+    points="57,12 100.3,37 100.3,87 57,112 13.7,87 13.7,37"
+    fill="url(#hexGrad)"
+  />
+
+  <!-- Very subtle inner hex border for depth -->
+  <polygon
+    points="57,12 100.3,37 100.3,87 57,112 13.7,87 13.7,37"
+    fill="none"
+    stroke="#EEC84A"
+    stroke-width="0.8"
+    opacity="0.25"
+  />
+
+  <!-- Gold base platform -->
+  <rect x="22" y="89" width="70" height="4" fill="url(#goldH)" rx="2"/>
+
+  <!-- Left column (short, white) -->
+  <rect x="24" y="68" width="15" height="21" fill="white" opacity="0.65" rx="2.5"/>
+
+  <!-- Center column (tallest, gold — the primary asset) -->
+  <rect x="49.5" y="44" width="15" height="45" fill="url(#goldV)" rx="2.5"/>
+
+  <!-- Right column (medium, white) -->
+  <rect x="75" y="58" width="15" height="31" fill="white" opacity="0.65" rx="2.5"/>
+
+  <!-- Dashed trend line connecting nodes -->
+  <polyline
+    points="31.5,63  57,38  82.5,53"
+    stroke="#EEC84A"
+    stroke-width="1.4"
+    fill="none"
+    stroke-dasharray="3.5,3"
+    opacity="0.5"
+  />
+
+  <!-- LST nodes on top of each column -->
+  <!-- Left node -->
+  <circle cx="31.5" cy="63" r="4.5" fill="#EEC84A"/>
+  <circle cx="31.5" cy="63" r="2.2" fill="#F7DC80"/>
+
+  <!-- Center node (larger, glowing — primary collateral point) -->
+  <circle cx="57" cy="38" r="6" fill="#EEC84A" filter="url(#glow)"/>
+  <circle cx="57" cy="38" r="3" fill="#FFF0A0"/>
+
+  <!-- Right node -->
+  <circle cx="82.5" cy="53" r="4.5" fill="#EEC84A"/>
+  <circle cx="82.5" cy="53" r="2.2" fill="#F7DC80"/>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  WORDMARK                              -->
+  <!-- ═══════════════════════════════════════ -->
+
+  <!-- "RWA" — heavy, authoritative -->
+  <text
+    x="124"
+    y="67"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-weight="900"
+    font-size="48"
+    fill="#091840"
+    letter-spacing="-0.5"
+  >RWA</text>
+
+  <!-- Thin vertical separator -->
+  <rect x="121" y="16" width="1.5" height="90" fill="#EEC84A" opacity="0.35" rx="0.75"/>
+
+  <!-- "COLLATERAL INFRA" — light, wide tracking -->
+  <text
+    x="126"
+    y="88"
+    font-family="Arial, Helvetica, sans-serif"
+    font-weight="400"
+    font-size="13"
+    fill="#1E3A7A"
+    letter-spacing="5.2"
+  >COLLATERAL INFRA</text>
+
+  <!-- Gold underline accent — aligns with subtitle width -->
+  <rect x="124" y="97" width="270" height="2.5" fill="url(#goldH)" rx="1.25"/>
+
+</svg>
