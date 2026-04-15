@@ -3,7 +3,13 @@
  *
  * Addresses are loaded from environment variables so that the same frontend
  * can be pointed at localhost, HashKey testnet, or mainnet without rebuilding.
+ *
+ * ABIs are written in human-readable form and parsed via viem's `parseAbi`
+ * so that wagmi's `useReadContract` / `useWriteContract` receive proper
+ * ABI objects (not raw strings).
  */
+
+import { parseAbi } from "viem";
 
 // ── Addresses ────────────────────────────────────────────────────────────────
 
@@ -27,7 +33,7 @@ export const CONTRACT_ADDRESSES = {
 
 // ── ABIs ─────────────────────────────────────────────────────────────────────
 
-export const ADMIN_CONTROLLER_ABI = [
+export const ADMIN_CONTROLLER_ABI = parseAbi([
   "function openFeePercent() view returns (uint256)",
   "function closeFeePercent() view returns (uint256)",
   "function collateralThreshold() view returns (uint256)",
@@ -41,9 +47,9 @@ export const ADMIN_CONTROLLER_ABI = [
   "function setAuctionDuration(uint256)",
   "event OpenFeeUpdated(uint256 oldFee, uint256 newFee)",
   "event CloseFeeUpdated(uint256 oldFee, uint256 newFee)",
-] as const;
+]);
 
-export const STABLECOIN_POOL_ABI = [
+export const STABLECOIN_POOL_ABI = parseAbi([
   "function totalAssets() view returns (uint256)",
   "function totalShares() view returns (uint256)",
   "function totalBorrowed() view returns (uint256)",
@@ -58,15 +64,16 @@ export const STABLECOIN_POOL_ABI = [
   "event Deposited(address indexed investor, uint256 amount, uint256 sharesIssued)",
   "event Withdrawn(address indexed investor, uint256 sharesRedeemed, uint256 amountReturned)",
   "event Repaid(address indexed vault, uint256 principal, uint256 fee)",
-] as const;
+]);
 
-export const COLLATERAL_VAULT_ABI = [
+export const COLLATERAL_VAULT_ABI = parseAbi([
   "function positionCount() view returns (uint256)",
   "function totalActivePositions() view returns (uint256)",
   "function totalBorrowedAllTime() view returns (uint256)",
   "function totalLiquidatedPositions() view returns (uint256)",
   "function getProtocolStats() view returns (uint256 activePositions, uint256 totalBorrowed, uint256 totalLiquidated, uint256 currentTotalBorrowed)",
-  "function getPosition(uint256) view returns (tuple(address borrower, address lstToken, uint256 lstAmount, uint256 loanAmount, uint256 openFee, uint256 openTimestamp, uint8 status, bool includeEmissions))",
+  "struct Position { address borrower; address lstToken; uint256 lstAmount; uint256 loanAmount; uint256 openFee; uint256 openTimestamp; uint8 status; bool includeEmissions; }",
+  "function getPosition(uint256) view returns (Position)",
   "function getBorrowerPositions(address) view returns (uint256[])",
   "function healthFactor(uint256) view returns (uint256)",
   "function harvestableCollateral(uint256) view returns (uint256)",
@@ -78,15 +85,16 @@ export const COLLATERAL_VAULT_ABI = [
   "event PositionOpened(uint256 indexed positionId, address indexed borrower, address lstToken, uint256 lstAmount, uint256 loanAmount, uint256 openFee, bool includeEmissions)",
   "event PositionClosed(uint256 indexed positionId, address indexed borrower, uint256 repaidAmount, uint256 closeFee)",
   "event PositionLiquidated(uint256 indexed positionId, address indexed borrower, uint256 auctionId)",
-] as const;
+]);
 
-export const DISPOSAL_CONTRACT_ABI = [
+export const DISPOSAL_CONTRACT_ABI = parseAbi([
   "function auctionCount() view returns (uint256)",
   "function activeAuctionCount() view returns (uint256)",
   "function creditedBalance(address) view returns (uint256)",
   "function lockedBid(address) view returns (uint256)",
   "function freeBalance(address) view returns (uint256)",
-  "function getAuction(uint256) view returns (tuple(address lstToken, uint256 lstAmount, uint256 minBid, uint256 debtToRepay, address debtor, address stablecoinPool, uint256 endTime, address highestBidder, uint256 highestBid, bool finalized))",
+  "struct Auction { address lstToken; uint256 lstAmount; uint256 minBid; uint256 debtToRepay; address debtor; address stablecoinPool; uint256 endTime; address highestBidder; uint256 highestBid; bool finalized; }",
+  "function getAuction(uint256) view returns (Auction)",
   "function getActiveAuctions() view returns (uint256[])",
   "function getActiveBidAuctions(address) view returns (uint256[])",
   "function creditFunds(uint256 amount)",
@@ -97,29 +105,29 @@ export const DISPOSAL_CONTRACT_ABI = [
   "event FundsWithdrawn(address indexed investor, uint256 amount)",
   "event BidPlaced(uint256 indexed auctionId, address indexed bidder, uint256 amount)",
   "event AuctionFinalized(uint256 indexed auctionId, address winner, uint256 winningBid)",
-] as const;
+]);
 
-export const EMISSIONS_ORACLE_ABI = [
+export const EMISSIONS_ORACLE_ABI = parseAbi([
   "function getEmissionsPerToken(address token) view returns (uint256)",
   "function getEmissionsValue(address token, uint256 amount) view returns (uint256)",
   "function setEmissionsPerToken(address token, uint256 value)",
   "function batchSetEmissionsPerToken(address[] tokens, uint256[] values)",
-] as const;
+]);
 
-export const NPV_ORACLE_ABI = [
+export const NPV_ORACLE_ABI = parseAbi([
   "function getNPVPerToken(address token) view returns (uint256)",
   "function getNPVValue(address token, uint256 amount) view returns (uint256)",
   "function setNPVPerToken(address token, uint256 value)",
   "function batchSetNPVPerToken(address[] tokens, uint256[] values)",
-] as const;
+]);
 
-export const VALUATION_ORACLE_ABI = [
+export const VALUATION_ORACLE_ABI = parseAbi([
   "function getTotalValue(address token, uint256 amount) view returns (uint256)",
   "function getPricePerToken(address token) view returns (uint256)",
   "function getTokenValue(address token, uint256 amount) view returns (uint256 total, uint256 emissionsComponent, uint256 npvComponent)",
-] as const;
+]);
 
-export const ERC20_ABI = [
+export const ERC20_ABI = parseAbi([
   "function name() view returns (string)",
   "function symbol() view returns (string)",
   "function decimals() view returns (uint8)",
@@ -129,17 +137,25 @@ export const ERC20_ABI = [
   "function approve(address spender, uint256 amount) returns (bool)",
   "function transfer(address to, uint256 amount) returns (bool)",
   "function transferFrom(address from, address to, uint256 amount) returns (bool)",
-] as const;
+]);
 
-export const RWA_TOKEN_ABI = [
-  ...ERC20_ABI,
+export const RWA_TOKEN_ABI = parseAbi([
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function decimals() view returns (uint8)",
+  "function totalSupply() view returns (uint256)",
+  "function balanceOf(address) view returns (uint256)",
+  "function allowance(address owner, address spender) view returns (uint256)",
+  "function approve(address spender, uint256 amount) returns (bool)",
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
   "function assetDescription() view returns (string)",
   "function documentationURI() view returns (string)",
   "function mint(address to, uint256 amount)",
   "function grantRole(bytes32 role, address account)",
-] as const;
+]);
 
-export const FAUCET_ABI = [
+export const FAUCET_ABI = parseAbi([
   "function mint(address token)",
   "function mintAll()",
   "function canMint(address token, address user) view returns (bool)",
@@ -150,16 +166,17 @@ export const FAUCET_ABI = [
   "function addToken(address token)",
   "function removeToken(address token)",
   "event TokensMinted(address indexed user, address indexed token, uint256 amount)",
-] as const;
+]);
 
-export const RWA_TOKEN_FACTORY_ABI = [
+export const RWA_TOKEN_FACTORY_ABI = parseAbi([
+  "struct TokenInfo { address tokenAddress; string name; string symbol; string assetDescription; }",
   "function createToken(string name_, string symbol_, string assetDescription_, string documentationURI_) returns (address)",
   "function registerToken(address tokenAddress, string name_, string symbol_, string assetDescription_)",
   "function getTokenCount() view returns (uint256)",
-  "function getAllTokens() view returns (tuple(address tokenAddress, string name, string symbol, string assetDescription)[])",
+  "function getAllTokens() view returns (TokenInfo[])",
   "function isRegistered(address) view returns (bool)",
   "event TokenCreated(address indexed tokenAddress, string name, string symbol, string assetDescription)",
-] as const;
+]);
 
 // Supported RWA tokens list for UI dropdowns
 export interface RWATokenInfo {

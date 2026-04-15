@@ -56,13 +56,14 @@ export function useOpenPosition() {
   const openPosition = async (
     lstToken: `0x${string}`,
     lstAmount: bigint,
-    borrowAmount: bigint
+    borrowAmount: bigint,
+    includeEmissions: boolean = true
   ) => {
     return writeContractAsync({
       address: VAULT,
       abi: COLLATERAL_VAULT_ABI,
       functionName: "openPosition",
-      args: [lstToken, lstAmount, borrowAmount],
+      args: [lstToken, lstAmount, borrowAmount, includeEmissions],
     });
   };
 
