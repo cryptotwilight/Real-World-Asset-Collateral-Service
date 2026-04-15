@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RWA Collateral Service — Unlocking Real-World Asset Liquidity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0d1117;
+    --ink-2: #2a3441;
+    --ink-3: #5a6a7a;
+    --fog: #f5f4ef;
+    --fog-2: #eceae2;
+    --fog-3: #e2dfd5;
+    --gold: #b8860b;
+    --gold-lt: #e8c84a;
+    --gold-dk: #7a5800;
+    --teal: #0f6e56;
+    --teal-lt: #e1f5ee;
+    --teal-dk: #04342c;
+    --coral: #993c1d;
+    --coral-lt: #faece7;
+    --border: rgba(13,17,23,0.12);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--fog);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID NOISE BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 3rem;
+    background: rgba(245,244,239,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .nav-logo span { color: var(--teal); }
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2.5rem;
+  }
+  nav ul a {
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--teal); }
+  .nav-cta {
+    background: var(--ink);
+    color: var(--fog) !important;
+    padding: 0.5rem 1.25rem;
+    border-radius: 2px;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.08em !important;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--teal) !important; color: white !important; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8rem 3rem 4rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 1.5rem;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--teal);
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 6.5vw, 6.5rem);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    max-width: 16ch;
+    margin-bottom: 2rem;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--teal);
+  }
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--ink-3);
+    max-width: 55ch;
+    line-height: 1.75;
+    margin-bottom: 3rem;
+    font-weight: 300;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .btn-primary {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--fog);
+    padding: 0.85rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--teal); }
+  .btn-ghost {
+    display: inline-block;
+    border: 1px solid var(--border);
+    color: var(--ink-2);
+    padding: 0.85rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 400;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* Diagonal accent line */
+  .hero-line {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 45%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-line svg { width: 100%; height: 100%; }
+
+  /* ── TICKER ── */
+  .ticker {
+    position: relative;
+    z-index: 1;
+    background: var(--ink);
+    color: var(--fog);
+    padding: 0.75rem 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex;
+    gap: 4rem;
+    animation: ticker 30s linear infinite;
+  }
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .ticker-dot {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--gold-lt);
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+  .section-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 6rem 3rem;
+  }
+  .section-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    max-width: 40px;
+    height: 1px;
+    background: var(--ink-3);
+    opacity: 0.4;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  h3 {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── PROBLEM / OPPORTUNITY ── */
+  .problem-bg {
+    background: var(--ink);
+    color: var(--fog);
+  }
+  .problem-bg .section-label { color: rgba(245,244,239,0.4); }
+  .problem-bg .section-label::after { background: rgba(245,244,239,0.2); }
+  .problem-bg h2 { color: var(--fog); }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+  .problem-stat {
+    border-top: 1px solid rgba(245,244,239,0.15);
+    padding-top: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .problem-stat .num {
+    font-family: var(--serif);
+    font-size: 3.5rem;
+    color: var(--gold-lt);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .problem-stat p {
+    font-size: 0.9rem;
+    color: rgba(245,244,239,0.55);
+    font-weight: 300;
+    line-height: 1.5;
+  }
+  .problem-text p {
+    color: rgba(245,244,239,0.7);
+    font-size: 1.05rem;
+    font-weight: 300;
+    margin-bottom: 1.25rem;
+    line-height: 1.8;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin-top: 3rem;
+    border: 1px solid var(--border);
+  }
+  .how-card {
+    padding: 2.5rem 2rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+    transition: background 0.3s;
+  }
+  .how-card:last-child { border-right: none; }
+  .how-card:hover { background: rgba(15,110,86,0.04); }
+  .how-num {
+    font-family: var(--serif);
+    font-size: 3rem;
+    color: var(--fog-3);
+    line-height: 1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.04em;
+  }
+  .how-card h3 { font-size: 1.2rem; margin-bottom: 0.75rem; }
+  .how-card p { font-size: 0.9rem; color: var(--ink-3); line-height: 1.7; }
+  .how-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--teal-lt);
+    color: var(--teal-dk);
+    padding: 3px 10px;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+  }
+
+  /* ── ARCHITECTURE VISUAL ── */
+  .arch-section { background: var(--fog-2); }
+  .arch-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+    margin-top: 3rem;
+  }
+  .arch-diagram { font-size: 0; }
+  .arch-diagram svg { width: 100%; height: auto; }
+
+  /* Contract stack */
+  .contract-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .contract-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .contract-item:last-child { border-bottom: none; }
+  .contract-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0;
+  }
+  .c-teal-bg { background: var(--teal-lt); }
+  .c-coral-bg { background: var(--coral-lt); }
+  .c-gold-bg { background: #faeeda; }
+  .contract-item h4 {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.01em;
+  }
+  .contract-item p {
+    font-size: 0.8rem;
+    color: var(--ink-3);
+    line-height: 1.5;
+  }
+
+  /* ── ORACLE DUAL PANEL ── */
+  .oracle-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-top: 3rem;
+    border: 1px solid var(--border);
+  }
+  .oracle-panel {
+    background: var(--fog);
+    padding: 2.5rem 2rem;
+  }
+  .oracle-panel h3 { font-size: 1.15rem; margin-bottom: 0.5rem; }
+  .oracle-panel p { font-size: 0.875rem; color: var(--ink-3); line-height: 1.65; margin-bottom: 1rem; }
+  .formula-box {
+    background: var(--ink);
+    color: var(--gold-lt);
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 2px;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── LIFECYCLE ── */
+  .lifecycle-row {
+    display: flex;
+    gap: 0;
+    margin-top: 3rem;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .lc-step {
+    flex: 1;
+    padding: 2rem 1.5rem;
+    border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .lc-step:last-child { border-right: none; }
+  .lc-arrow {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: var(--fog);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    font-size: 0;
+  }
+  .lc-step:last-child .lc-arrow { display: none; }
+  .lc-num {
+    font-family: var(--serif);
+    font-size: 2rem;
+    color: var(--fog-3);
+    line-height: 1;
+    margin-bottom: 0.75rem;
+  }
+  .lc-step h4 { font-size: 0.875rem; font-weight: 500; letter-spacing: 0.02em; margin-bottom: 0.4rem; }
+  .lc-step p { font-size: 0.8rem; color: var(--ink-3); line-height: 1.55; }
+  .lc-badge {
+    display: inline-block;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-bottom: 0.75rem;
+  }
+  .badge-teal { background: var(--teal-lt); color: var(--teal-dk); }
+  .badge-coral { background: var(--coral-lt); color: var(--coral); }
+  .badge-gold { background: #faeeda; color: #854f0b; }
+
+  /* ── FOR INVESTORS / BORROWERS ── */
+  .audience-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    background: var(--border);
+    margin-top: 3rem;
+  }
+  .audience-card {
+    padding: 3rem 2.5rem;
+    background: var(--fog);
+  }
+  .audience-card.dark { background: var(--ink); }
+  .audience-card.dark h3,
+  .audience-card.dark li,
+  .audience-card.dark p { color: var(--fog); }
+  .audience-card.dark .aud-label { color: rgba(245,244,239,0.4); }
+  .aud-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 1.5rem;
+  }
+  .audience-card h3 { font-size: 1.75rem; margin-bottom: 1rem; }
+  .audience-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .audience-card li {
+    font-size: 0.9rem;
+    color: var(--ink-2);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    line-height: 1.5;
+  }
+  .audience-card.dark li { color: rgba(245,244,239,0.7); }
+  .check {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--teal-lt);
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+  }
+  .check::after {
+    content: '';
+    position: absolute;
+    top: 4px; left: 3px;
+    width: 10px; height: 5px;
+    border-left: 1.5px solid var(--teal);
+    border-bottom: 1.5px solid var(--teal);
+    transform: rotate(-45deg);
+  }
+  .audience-card.dark .check { background: rgba(15,110,86,0.3); }
+
+  /* ── HEALTH FACTOR EXPLAINER ── */
+  .hf-section { background: var(--ink); color: var(--fog); }
+  .hf-section h2 { color: var(--fog); }
+  .hf-section .section-label { color: rgba(245,244,239,0.4); }
+  .hf-section .section-label::after { background: rgba(245,244,239,0.2); }
+  .hf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-top: 3rem;
+    align-items: center;
+  }
+  .hf-bar-wrap {
+    padding: 2rem;
+    border: 1px solid rgba(245,244,239,0.12);
+  }
+  .hf-label { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,244,239,0.4); margin-bottom: 1rem; }
+  .hf-bar-track {
+    height: 8px;
+    background: rgba(245,244,239,0.1);
+    border-radius: 4px;
+    position: relative;
+    margin-bottom: 0.75rem;
+  }
+  .hf-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    position: relative;
+  }
+  .hf-safe { background: linear-gradient(90deg, #0f6e56, #1d9e75); width: 78%; }
+  .hf-threshold { background: linear-gradient(90deg, #ba7517, #ef9f27); width: 45%; }
+  .hf-liq { background: linear-gradient(90deg, #993c1d, #d85a30); width: 25%; }
+  .hf-zone {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: rgba(245,244,239,0.4);
+  }
+  .hf-row {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(245,244,239,0.08);
+  }
+  .hf-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .hf-row-label { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,244,239,0.35); margin-bottom: 0.5rem; }
+  .hf-row-value { font-family: var(--serif); font-size: 1.5rem; margin-bottom: 0.25rem; }
+  .hf-row-sub { font-size: 0.8rem; color: rgba(245,244,239,0.5); font-weight: 300; }
+  .color-teal { color: #5dcaa5; }
+  .color-gold { color: var(--gold-lt); }
+  .color-coral { color: #f0997b; }
+
+  /* ── TECH STACK ── */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-top: 3rem;
+    border: 1px solid var(--border);
+  }
+  .stack-item {
+    background: var(--fog);
+    padding: 2rem 1.5rem;
+    text-align: center;
+  }
+  .stack-icon {
+    width: 48px; height: 48px;
+    margin: 0 auto 1rem;
+  }
+  .stack-item h4 { font-size: 0.9rem; font-weight: 500; margin-bottom: 0.3rem; }
+  .stack-item p { font-size: 0.78rem; color: var(--ink-3); line-height: 1.5; }
+
+  /* ── CHAIN HIGHLIGHT ── */
+  .chain-section { background: var(--teal-lt); }
+  .chain-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .chain-layout h2 { color: var(--teal-dk); }
+  .chain-layout .section-label { color: var(--teal); }
+  .chain-layout .section-label::after { background: var(--teal); opacity: 0.4; }
+  .chain-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+  .chain-feat {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  .chain-feat-icon {
+    width: 40px; height: 40px;
+    background: white;
+    border-radius: 2px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chain-feat h4 { font-size: 0.9rem; font-weight: 500; color: var(--teal-dk); margin-bottom: 0.25rem; }
+  .chain-feat p { font-size: 0.82rem; color: var(--teal); line-height: 1.5; }
+  .chain-card {
+    background: var(--teal-dk);
+    color: var(--fog);
+    padding: 2.5rem;
+    border-radius: 2px;
+  }
+  .chain-card-label { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(245,244,239,0.4); margin-bottom: 0.3rem; }
+  .chain-card-val { font-family: var(--serif); font-size: 2rem; color: #5dcaa5; margin-bottom: 1.5rem; }
+  .chain-card-divider { height: 1px; background: rgba(245,244,239,0.1); margin: 1.25rem 0; }
+
+  /* ── SECURITY ── */
+  .security-bg { background: var(--fog-2); }
+  .security-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    margin-top: 3rem;
+    border: 1px solid var(--border);
+  }
+  .sec-card {
+    background: var(--fog);
+    padding: 2rem 1.75rem;
+  }
+  .sec-card-icon {
+    width: 40px; height: 40px;
+    border-radius: 2px;
+    margin-bottom: 1.25rem;
+  }
+  .sec-card h4 { font-size: 1rem; margin-bottom: 0.5rem; }
+  .sec-card p { font-size: 0.83rem; color: var(--ink-3); line-height: 1.65; }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: var(--ink);
+    color: var(--fog);
+    text-align: center;
+    padding: 7rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 600px;
+    border: 1px solid rgba(245,244,239,0.04);
+    border-radius: 50%;
+  }
+  .cta-section::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 900px; height: 900px;
+    border: 1px solid rgba(245,244,239,0.025);
+    border-radius: 50%;
+  }
+  .cta-section h2 { color: var(--fog); position: relative; z-index: 1; max-width: 20ch; margin: 0 auto 1rem; }
+  .cta-sub { color: rgba(245,244,239,0.55); font-size: 1.05rem; font-weight: 300; max-width: 50ch; margin: 0 auto 2.5rem; position: relative; z-index: 1; }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; position: relative; z-index: 1; flex-wrap: wrap; }
+  .btn-gold {
+    display: inline-block;
+    background: var(--gold-lt);
+    color: var(--ink);
+    padding: 0.85rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .btn-gold:hover { background: #fdd835; }
+  .btn-outline-light {
+    display: inline-block;
+    border: 1px solid rgba(245,244,239,0.25);
+    color: rgba(245,244,239,0.7);
+    padding: 0.85rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 400;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-outline-light:hover { border-color: var(--gold-lt); color: var(--gold-lt); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink-2);
+    color: rgba(245,244,239,0.4);
+    padding: 2rem 3rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+  }
+  footer strong { color: rgba(245,244,239,0.7); font-weight: 500; }
+  .footer-chain {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .footer-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #5dcaa5;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .fade-up-2 { transition-delay: 0.1s; }
+  .fade-up-3 { transition-delay: 0.2s; }
+  .fade-up-4 { transition-delay: 0.3s; }
+  .fade-up-5 { transition-delay: 0.4s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    nav ul { display: none; }
+    .hero { padding: 7rem 1.5rem 3rem; }
+    .section-inner { padding: 4rem 1.5rem; }
+    .problem-grid, .arch-layout, .hf-grid, .chain-layout { grid-template-columns: 1fr; }
+    .how-grid, .audience-grid, .security-cards { grid-template-columns: 1fr; }
+    .oracle-panels { grid-template-columns: 1fr; }
+    .stack-grid { grid-template-columns: 1fr 1fr; }
+    .lifecycle-row { flex-direction: column; }
+    .lc-arrow { display: none; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">RWA<span>.</span>Collateral</div>
+  <ul>
+    <li><a href="#how">Protocol</a></li>
+    <li><a href="#oracle">Oracle</a></li>
+    <li><a href="#participants">Participants</a></li>
+    <li><a href="#chain">HashKey</a></li>
+    <li><a href="#contact" class="nav-cta">Partner With Us</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-line">
+    <svg viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <line x1="600" y1="0" x2="0" y2="900" stroke="rgba(15,110,86,0.1)" stroke-width="1"/>
+      <line x1="600" y1="100" x2="100" y2="900" stroke="rgba(15,110,86,0.06)" stroke-width="1"/>
+      <line x1="600" y1="200" x2="200" y2="900" stroke="rgba(15,110,86,0.06)" stroke-width="1"/>
+      <circle cx="480" cy="180" r="120" stroke="rgba(184,134,11,0.08)" stroke-width="1" fill="none"/>
+      <circle cx="480" cy="180" r="200" stroke="rgba(184,134,11,0.04)" stroke-width="1" fill="none"/>
+      <rect x="320" y="300" width="160" height="160" stroke="rgba(15,110,86,0.07)" stroke-width="1" fill="none" transform="rotate(15, 400, 380)"/>
+    </svg>
+  </div>
+  <div class="hero-eyebrow">Built on HashKey Chain — Regulated DeFi</div>
+  <h1>Real-World Assets,<br><em>Unlocked</em> as Collateral</h1>
+  <p class="hero-sub">A decentralised protocol enabling holders of Real-World Asset Liquid Staked Tokens to collateralise their positions and borrow stablecoins — bridging institutional-grade assets with on-chain capital efficiency.</p>
+  <div class="hero-actions">
+    <a href="#how" class="btn-primary">Explore the Protocol</a>
+    <a href="#contact" class="btn-ghost">Partner Enquiries</a>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="ticker-dot"></span>RWA Liquid Staked Tokens</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Dual Oracle Valuation</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>150% Collateral Ratio</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>On-Chain Liquidation Auctions</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>HashKey Chain — Chain ID 133</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>EVM-Compatible L2</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Institutional DeFi Infrastructure</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>RWA Liquid Staked Tokens</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Dual Oracle Valuation</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>150% Collateral Ratio</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>On-Chain Liquidation Auctions</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>HashKey Chain — Chain ID 133</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>EVM-Compatible L2</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Institutional DeFi Infrastructure</span>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem-bg">
+  <div class="section-inner">
+    <div class="section-label">The Opportunity</div>
+    <h2>Trillions in Real-World<br>Assets — Illiquid by Default</h2>
+    <div class="problem-grid">
+      <div>
+        <div class="problem-stat fade-up">
+          <div class="num">$300T+</div>
+          <p>Estimated global real estate and physical asset value — the vast majority generating yield but locked out of on-chain capital markets.</p>
+        </div>
+        <div class="problem-stat fade-up fade-up-2">
+          <div class="num">$16B+</div>
+          <p>Current RWA tokenisation market cap, growing exponentially as institutional confidence in on-chain infrastructure matures.</p>
+        </div>
+        <div class="problem-stat fade-up fade-up-3">
+          <div class="num">~0%</div>
+          <p>Share of tokenised RWAs currently usable as DeFi collateral. The infrastructure gap represents the largest untapped opportunity in institutional DeFi.</p>
+        </div>
+      </div>
+      <div class="problem-text fade-up fade-up-2">
+        <p>Real estate investment trusts, royalty streams, and dividend-bearing assets are being tokenised at record pace. Yet the holders of these tokens face a fundamental problem: their assets are productive, but illiquid.</p>
+        <p>They cannot participate in DeFi liquidity markets. They cannot lever their positions. They cannot access stablecoin capital without liquidating underlying holdings.</p>
+        <p>RWA Collateral Service resolves this. By treating Liquid Staked Tokens as collateral against a proven dual-oracle valuation model, we give RWA holders access to stablecoin liquidity while retaining their exposure — and give liquidity providers a new, yield-bearing venue backed by tangible assets.</p>
+        <p style="color: rgba(245,244,239,0.4); font-size: 0.85rem; font-style: italic;">Built from the ground up for regulated, institutional-grade DeFi on HashKey Chain.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="section-inner">
+    <div class="section-label">Protocol Mechanics</div>
+    <h2>Three Roles. One Protocol.</h2>
+    <div class="how-grid">
+      <div class="how-card fade-up">
+        <div class="how-num">01</div>
+        <div class="how-tag">Borrowers</div>
+        <h3>Lock & Borrow</h3>
+        <p>RWA LST holders deposit their tokens as collateral in the Collateral Vault. They receive stablecoins immediately — up to a protocol-defined loan-to-value ratio — while retaining economic exposure to the underlying asset's income stream and appreciation.</p>
+      </div>
+      <div class="how-card fade-up fade-up-2">
+        <div class="how-num">02</div>
+        <div class="how-tag">Liquidity Providers</div>
+        <h3>Deposit & Earn</h3>
+        <p>Investors deposit stablecoins into the Stablecoin Pool, receiving pro-rata shares. Every borrowing position generates opening and closing fees, which flow back to the pool — increasing the redemption value of all shares over time.</p>
+      </div>
+      <div class="how-card fade-up fade-up-3">
+        <div class="how-num">03</div>
+        <div class="how-tag">Liquidators</div>
+        <h3>Bid & Acquire</h3>
+        <p>When a position's health factor falls below the liquidation threshold, LSTs transfer to the Disposal Contract. Pre-crediting investors compete in ascending auctions for the liquidated collateral, clearing bad debt and acquiring tokenised RWAs at competitive prices.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="arch-section" id="oracle">
+  <div class="section-inner">
+    <div class="section-label">Oracle Design</div>
+    <h2>Dual-Valuation Oracle:<br>Capturing Every Dimension of RWA Value</h2>
+    <div class="arch-layout">
+      <div class="fade-up">
+        <p style="color: var(--ink-3); margin-bottom: 2rem; max-width: 50ch; line-height: 1.75; font-size: 0.95rem;">Real-World Assets derive value from two distinct, independently variable sources. Our RWA Valuation Oracle captures both — and applies governance-adjustable risk haircuts to each, enabling nuanced, asset-specific risk management.</p>
+        <div class="oracle-panels">
+          <div class="oracle-panel">
+            <h3>Emissions Oracle</h3>
+            <p>Reports the present value of the underlying asset's income stream entitlement — rent, royalties, or dividends. Updated by authorised keeper oracles with per-token precision.</p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="how-tag" style="background: #faeeda; color: #854f0b;">Rent</span>
+              <span class="how-tag" style="background: #faeeda; color: #854f0b;">Royalties</span>
+              <span class="how-tag" style="background: #faeeda; color: #854f0b;">Dividends</span>
+            </div>
+          </div>
+          <div class="oracle-panel">
+            <h3>NPV Oracle</h3>
+            <p>Provides the Net Present Value — the discounted fair value of the physical or legal asset itself. Can be sourced from licensed valuation agents or Chainlink feeds.</p>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <span class="how-tag">Property Value</span>
+              <span class="how-tag">Asset Appraisal</span>
+            </div>
+          </div>
+        </div>
+        <div class="oracle-panels" style="margin-top: 1px;">
+          <div class="oracle-panel" style="grid-column: 1 / -1;">
+            <h3>RWA Valuation Oracle — Aggregation Formula</h3>
+            <div class="formula-box">
+totalValuePerToken =<br>
+&nbsp;&nbsp;emissionsPerToken × emissionsWeight<br>
+&nbsp;&nbsp;+ npvPerToken × npvWeight<br><br>
+// Weights default to 10,000 bp (100%)<br>
+// Governance may apply risk haircuts
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contract-list fade-up fade-up-2">
+        <div class="contract-item">
+          <div class="contract-icon c-teal-bg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="2" stroke="#0f6e56" stroke-width="1.5"/><path d="M7 10h6M10 7v6" stroke="#0f6e56" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h4>AdminController</h4>
+            <p>Governance of all protocol parameters: fees, collateral threshold, liquidation threshold, and auction duration. Owner-only access.</p>
+          </div>
+        </div>
+        <div class="contract-item">
+          <div class="contract-icon c-teal-bg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M3 10h14" stroke="#0f6e56" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h4>CollateralVault</h4>
+            <p>Core contract managing position lifecycle: open, close, top-up, harvest, and liquidate operations for all RWA LST collateral.</p>
+          </div>
+        </div>
+        <div class="contract-item">
+          <div class="contract-icon c-gold-bg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="6" stroke="#854f0b" stroke-width="1.5"/><path d="M10 7v3l2 2" stroke="#854f0b" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h4>StablecoinPool</h4>
+            <p>Share-based LP pool (ERC-4626 inspired) where investors deposit stablecoins. Earns pro-rata fees from every position open and close.</p>
+          </div>
+        </div>
+        <div class="contract-item">
+          <div class="contract-icon c-coral-bg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="#993c1d" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h4>DisposalContract</h4>
+            <p>Handles liquidation auctions. Investors pre-credit funds; the winning bidder receives LSTs and outstanding debt is repaid to the pool.</p>
+          </div>
+        </div>
+        <div class="contract-item">
+          <div class="contract-icon c-teal-bg">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 16l4-4 3 3 5-8" stroke="#0f6e56" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <h4>RWAValuationOracle</h4>
+            <p>Aggregates Emissions and NPV oracles into a single USD price per token. Supports governance-adjustable per-token risk haircuts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- POSITION LIFECYCLE -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">Position Lifecycle</div>
+    <h2>From Collateral to Capital —<br>Every Step on Chain</h2>
+    <div class="lifecycle-row fade-up">
+      <div class="lc-step">
+        <div class="lc-arrow">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="var(--ink-3)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lc-num">01</div>
+        <div class="lc-badge badge-teal">Borrower</div>
+        <h4>Open Position</h4>
+        <p>Lock RWA LSTs in Collateral Vault. Receive net stablecoins immediately. Open fee retained by pool.</p>
+      </div>
+      <div class="lc-step">
+        <div class="lc-arrow">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="var(--ink-3)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lc-num">02</div>
+        <div class="lc-badge badge-teal">Active</div>
+        <h4>Manage Position</h4>
+        <p>Top-up collateral, harvest surplus yield, or borrow more as valuations change. Health factor monitored continuously.</p>
+      </div>
+      <div class="lc-step">
+        <div class="lc-arrow">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="var(--ink-3)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lc-num">03</div>
+        <div class="lc-badge badge-teal">Borrower</div>
+        <h4>Close Position</h4>
+        <p>Repay outstanding stablecoin loan. Collateral LSTs returned in full. Close fee flows to pool investors.</p>
+      </div>
+      <div class="lc-step">
+        <div class="lc-arrow">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 2l4 3-4 3" stroke="var(--ink-3)" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="lc-num">04</div>
+        <div class="lc-badge badge-coral">Risk Event</div>
+        <h4>Liquidation Triggered</h4>
+        <p>Health factor below 110%. Any caller triggers liquidation. LSTs transfer to Disposal Contract. Auction opens.</p>
+      </div>
+      <div class="lc-step">
+        <div class="lc-badge badge-gold">Investors</div>
+        <div class="lc-num">05</div>
+        <h4>Auction & Resolution</h4>
+        <p>Investors bid ascending. Winning bid clears debt to pool. Surplus (if any) returned to original borrower. Winner receives LSTs.</p>
+      </div>
+    </div>
+    <p style="margin-top: 1.25rem; font-size: 0.8rem; color: var(--ink-3);">Health Factor = (Collateral Value USD × 10,000) / Loan Amount — expressed in basis points. Open minimum: 15,000 bp (150%). Liquidation threshold: 11,000 bp (110%).</p>
+  </div>
+</section>
+
+<!-- HEALTH FACTOR -->
+<section class="hf-section">
+  <div class="section-inner">
+    <div class="section-label">Risk Management</div>
+    <h2>Transparent, On-Chain<br>Risk Parameters</h2>
+    <div class="hf-grid">
+      <div>
+        <p style="color: rgba(245,244,239,0.6); font-size: 0.95rem; font-weight: 300; margin-bottom: 2rem; line-height: 1.75;">Protocol risk parameters are governed through AdminController — transparent, auditable, and adjustable by governance. The dual collateral threshold system gives borrowers a meaningful buffer before liquidation is triggered.</p>
+        <div class="hf-bar-wrap">
+          <div class="hf-row">
+            <div class="hf-row-label">Safe Zone</div>
+            <div class="hf-row-value color-teal">≥ 150% (15,000 bp)</div>
+            <div class="hf-row-sub">Minimum to open or maintain a position</div>
+            <div class="hf-bar-track" style="margin-top: 0.75rem;"><div class="hf-bar-fill hf-safe"></div></div>
+          </div>
+          <div class="hf-row">
+            <div class="hf-row-label">Warning Zone</div>
+            <div class="hf-row-value color-gold">110–150%</div>
+            <div class="hf-row-sub">Position at risk — add collateral or repay</div>
+            <div class="hf-bar-track" style="margin-top: 0.75rem;"><div class="hf-bar-fill hf-threshold"></div></div>
+          </div>
+          <div class="hf-row">
+            <div class="hf-row-label">Liquidation</div>
+            <div class="hf-row-value color-coral">&lt; 110% (11,000 bp)</div>
+            <div class="hf-row-sub">Anyone may trigger liquidation — auction opens</div>
+            <div class="hf-bar-track" style="margin-top: 0.75rem;"><div class="hf-bar-fill hf-liq"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="display: flex; flex-direction: column; gap: 1px; background: rgba(245,244,239,0.08); border: 1px solid rgba(245,244,239,0.08);">
+          <div style="background: rgba(13,17,23,0.5); padding: 1.5rem 2rem;">
+            <div class="hf-label">Open Fee</div>
+            <div style="font-family: var(--serif); font-size: 1.75rem; color: #5dcaa5;">Configurable</div>
+            <div style="font-size: 0.78rem; color: rgba(245,244,239,0.4); margin-top: 0.25rem;">Basis points — set by AdminController governance</div>
+          </div>
+          <div style="background: rgba(13,17,23,0.5); padding: 1.5rem 2rem;">
+            <div class="hf-label">Close Fee</div>
+            <div style="font-family: var(--serif); font-size: 1.75rem; color: #5dcaa5;">Configurable</div>
+            <div style="font-size: 0.78rem; color: rgba(245,244,239,0.4); margin-top: 0.25rem;">Flows directly to StablecoinPool investors</div>
+          </div>
+          <div style="background: rgba(13,17,23,0.5); padding: 1.5rem 2rem;">
+            <div class="hf-label">Auction Duration</div>
+            <div style="font-family: var(--serif); font-size: 1.75rem; color: var(--gold-lt);">24 Hours</div>
+            <div style="font-size: 0.78rem; color: rgba(245,244,239,0.4); margin-top: 0.25rem;">Default — adjustable, ascending-bid format</div>
+          </div>
+          <div style="background: rgba(13,17,23,0.5); padding: 1.5rem 2rem;">
+            <div class="hf-label">Oracle Risk Haircut</div>
+            <div style="font-family: var(--serif); font-size: 1.75rem; color: #f0997b;">Per-Token</div>
+            <div style="font-size: 0.78rem; color: rgba(245,244,239,0.4); margin-top: 0.25rem;">Governance-adjustable weight on emissions vs NPV</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOR PARTICIPANTS -->
+<section id="participants">
+  <div class="section-inner">
+    <div class="section-label">Participants</div>
+    <h2>Built for Both Sides<br>of the Capital Table</h2>
+    <div class="audience-grid">
+      <div class="audience-card dark fade-up">
+        <div class="aud-label">For RWA Holders — Borrowers</div>
+        <h3>Access Liquidity Without Liquidating Your Assets</h3>
+        <ul>
+          <li><span class="check"></span>Borrow stablecoins against tokenised real estate, royalty streams, or dividend assets</li>
+          <li><span class="check"></span>Maintain full economic exposure to your RWA portfolio</li>
+          <li><span class="check"></span>Top up, harvest, or close positions at any time</li>
+          <li><span class="check"></span>Transparent, on-chain health factor with predictable liquidation rules</li>
+          <li><span class="check"></span>Dual-oracle valuation captures the full value of your asset — income and capital</li>
+        </ul>
+        <a href="#contact" class="btn-gold">Enquire as a Borrower</a>
+      </div>
+      <div class="audience-card fade-up fade-up-2">
+        <div class="aud-label">For Capital Deployers — Investors</div>
+        <h3>Earn Yield Backed by<br>Tangible Asset Collateral</h3>
+        <ul>
+          <li><span class="check"></span>Deposit stablecoins into the StablecoinPool — earn pro-rata protocol fees</li>
+          <li><span class="check"></span>Fees from every position open and close accumulate as pool yield</li>
+          <li><span class="check"></span>Participate in liquidation auctions to acquire RWA LSTs at competitive prices</li>
+          <li><span class="check"></span>Share-based accounting with transparent, real-time accrual</li>
+          <li><span class="check"></span>Institutional-grade infrastructure on HashKey Chain's regulated L2</li>
+        </ul>
+        <a href="#contact" class="btn-primary">Enquire as an Investor</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HASHKEY CHAIN -->
+<section class="chain-section" id="chain">
+  <div class="section-inner">
+    <div class="chain-layout">
+      <div class="fade-up">
+        <div class="section-label">Infrastructure</div>
+        <h2>Built on HashKey Chain — DeFi Designed for Regulation</h2>
+        <p style="color: var(--teal); font-size: 0.95rem; font-weight: 300; margin-bottom: 1rem; line-height: 1.75;">HashKey Chain is an EVM-compatible Layer-2 purpose-built for regulated digital assets and institutional DeFi. Deploying on HashKey means our protocol operates within a compliance framework that institutional capital providers can rely on.</p>
+        <div class="chain-features">
+          <div class="chain-feat">
+            <div class="chain-feat-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3l7 4v6l-7 4-7-4V7l7-4z" stroke="#0f6e56" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h4>EVM Compatible</h4>
+              <p>Full compatibility with existing Ethereum tooling, wallets, and smart contract standards. Zero friction for developers and integrators.</p>
+            </div>
+          </div>
+          <div class="chain-feat">
+            <div class="chain-feat-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="4" y="4" width="12" height="12" rx="2" stroke="#0f6e56" stroke-width="1.5"/><path d="M7 10h6" stroke="#0f6e56" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <h4>Regulated Digital Asset Focus</h4>
+              <p>Designed from the ground up for institutional-grade tokenised assets — the natural home for RWA LST infrastructure.</p>
+            </div>
+          </div>
+          <div class="chain-feat">
+            <div class="chain-feat-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="6" stroke="#0f6e56" stroke-width="1.5"/><path d="M10 7v3l2 2" stroke="#0f6e56" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <h4>Layer-2 Efficiency</h4>
+              <p>Low-cost, high-throughput transactions — enabling protocol economics that work at scale without unsustainable gas overhead.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="fade-up fade-up-2">
+        <div class="chain-card">
+          <div class="chain-card-label">Network</div>
+          <div class="chain-card-val">HashKey Chain</div>
+          <div class="chain-card-label">Chain ID</div>
+          <div style="font-family: var(--serif); font-size: 1.5rem; color: white; margin-bottom: 1.5rem;">133 (Testnet)</div>
+          <div class="chain-card-divider"></div>
+          <div class="chain-card-label">RPC Endpoint</div>
+          <div style="font-family: 'Courier New', monospace; font-size: 0.72rem; color: rgba(245,244,239,0.5); word-break: break-all; margin-bottom: 1.5rem; line-height: 1.6;">https://hashkeychain-testnet<br>.alt.technology</div>
+          <div class="chain-card-label">Explorer</div>
+          <div style="font-family: 'Courier New', monospace; font-size: 0.72rem; color: rgba(245,244,239,0.5); word-break: break-all; margin-bottom: 1.5rem; line-height: 1.6;">hashkeychain-testnet-explorer<br>.alt.technology</div>
+          <div class="chain-card-divider"></div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: #5dcaa5; animation: pulse 2s infinite;"></div>
+            <span style="font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #5dcaa5;">Testnet Active</span>
+          </div>
+        </div>
+        <div style="margin-top: 1px; background: white; padding: 1.5rem; border: 1px solid rgba(15,110,86,0.15);">
+          <div style="font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--teal); margin-bottom: 0.5rem;">Frontend Stack</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <span style="background: var(--teal-lt); color: var(--teal-dk); font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;">Next.js 14</span>
+            <span style="background: var(--teal-lt); color: var(--teal-dk); font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;">RainbowKit</span>
+            <span style="background: var(--teal-lt); color: var(--teal-dk); font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;">Wagmi</span>
+            <span style="background: var(--teal-lt); color: var(--teal-dk); font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;">viem</span>
+            <span style="background: var(--teal-lt); color: var(--teal-dk); font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;">Hardhat</span>
+            <span style="background: var(--teal-lt); color: var(--teal-dk); font-size: 0.7rem; padding: 3px 10px; border-radius: 2px;">ERC-4626</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY -->
+<section class="security-bg" id="security">
+  <div class="section-inner">
+    <div class="section-label">Security & Compliance</div>
+    <h2>Designed for Institutional<br>Deployment Standards</h2>
+    <div class="security-cards fade-up">
+      <div class="sec-card">
+        <div class="sec-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" fill="#e1f5ee" rx="2"/><path d="M20 10l8 4v8c0 5-4 8-8 10-4-2-8-5-8-10v-8l8-4z" stroke="#0f6e56" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>
+        </div>
+        <h4>Oracle Security Roadmap</h4>
+        <p>Testnet uses stub oracles configurable by the owner. The production path replaces these with Chainlink Data Feeds or multi-sig credentialled keeper oracles — ensuring tamper-resistant, manipulation-resistant valuation.</p>
+      </div>
+      <div class="sec-card">
+        <div class="sec-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" fill="#faeeda" rx="2"/><path d="M13 20h14M13 15h14M13 25h8" stroke="#854f0b" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <h4>Audit-First Mainnet Path</h4>
+        <p>All contracts are clearly documented and architecturally separated for clean audit scope. Mainnet deployment is gated on a professional security audit — protocol integrity is non-negotiable.</p>
+      </div>
+      <div class="sec-card">
+        <div class="sec-card-icon">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" fill="#e1f5ee" rx="2"/><circle cx="20" cy="20" r="8" stroke="#0f6e56" stroke-width="1.5" fill="none"/><path d="M17 20l2 2 4-4" stroke="#0f6e56" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h4>Governance-Controlled Parameters</h4>
+        <p>Every risk parameter — collateral thresholds, fee rates, oracle weights, auction durations — is managed through AdminController with owner-gated access. Multi-sig governance planned for mainnet.</p>
+      </div>
+    </div>
+    <div style="margin-top: 2rem; padding: 1.25rem 1.75rem; border: 1px solid var(--border); background: var(--fog); display: flex; gap: 1rem; align-items: flex-start;">
+      <div style="width: 4px; flex-shrink: 0; background: #e8c84a; border-radius: 2px; align-self: stretch;"></div>
+      <p style="font-size: 0.83rem; color: var(--ink-3); line-height: 1.7; margin: 0;"><strong style="color: var(--ink-2);">Note for prospective partners and investors:</strong> The current deployment is on HashKey Chain Testnet. All contracts are unaudited. The MockStablecoin has an open mint function and should be replaced with regulated stablecoins on mainnet. We welcome technical due diligence and security review partnerships ahead of any mainnet deployment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <h2>Ready to Bridge<br>Real-World Assets<br>with <em style="font-style:italic; color: #e8c84a;">On-Chain Capital</em>?</h2>
+  <p class="cta-sub">Whether you're an RWA tokenisation platform, institutional liquidity provider, or regulated exchange building the next layer of DeFi infrastructure — we want to build with you.</p>
+  <div class="cta-actions">
+    <a href="mailto:partnerships@rwacollateral.finance" class="btn-gold">Partner Enquiry</a>
+    <a href="https://hashkeychain-testnet-explorer.alt.technology" class="btn-outline-light">Explore on Chain</a>
+    <a href="https://faucet.hashkey.cloud" class="btn-outline-light">Get Testnet HSK</a>
+  </div>
+  <div style="margin-top: 3rem; display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap;">
+    <div style="text-align: center;">
+      <div style="font-family: var(--serif); font-size: 2.5rem; color: #e8c84a; line-height: 1;">9</div>
+      <div style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,244,239,0.35); margin-top: 0.25rem;">Smart Contracts</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-family: var(--serif); font-size: 2.5rem; color: #e8c84a; line-height: 1;">2</div>
+      <div style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,244,239,0.35); margin-top: 0.25rem;">Oracle Sources</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-family: var(--serif); font-size: 2.5rem; color: #e8c84a; line-height: 1;">3</div>
+      <div style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,244,239,0.35); margin-top: 0.25rem;">Participant Roles</div>
+    </div>
+    <div style="text-align: center;">
+      <div style="font-family: var(--serif); font-size: 2.5rem; color: #e8c84a; line-height: 1;">L2</div>
+      <div style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,244,239,0.35); margin-top: 0.25rem;">HashKey Chain</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div><strong>RWA Collateral Service</strong> — Real-World Asset DeFi Protocol</div>
+  <div class="footer-chain">
+    <div class="footer-dot"></div>
+    <span>HashKey Chain Testnet — Chain ID 133</span>
+  </div>
+  <div>Built for institutional DeFi — Unaudited Testnet</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
