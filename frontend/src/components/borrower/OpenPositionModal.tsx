@@ -19,6 +19,7 @@ export function OpenPositionModal({ open, onClose, onSuccess }: Props) {
   const [selectedToken, setSelectedToken] = useState(RWA_TOKENS[0]?.address ?? "");
   const [lstAmount, setLstAmount] = useState("");
   const [borrowAmount, setBorrowAmount] = useState("");
+  const [includeEmissions, setIncludeEmissions] = useState(true);
   const [txError, setTxError] = useState("");
 
   const { writeContractAsync: approve, isPending: approvePending } = useWriteContract();
@@ -46,9 +47,12 @@ export function OpenPositionModal({ open, onClose, onSuccess }: Props) {
   });
   const [totalValue, emissionsValue, npvValue] = (valData ?? [0n, 0n, 0n]) as [bigint, bigint, bigint];
 
+  // Effective collateral depends on emissions routing choice
+  const effectiveCollateral = includeEmissions ? totalValue : npvValue;
+
   // Health factor preview
-  const healthPreview = borrowAmountBig > 0n && totalValue > 0n
-    ? Number((totalValue * 10000n) / (borrowAmountBig * (10n ** 12n))) // adjust for stablecoin 6dec vs 18dec value
+  const healthPreview = borrowAmountBig > 0n && effectiveCollateral > 0n
+    ? Number((effectiveCollateral * 10000n) / (borrowAmountBig * (10n ** 12n))) // adjust for stablecoin 6dec vs 18dec value
     : null;
 
   const isHealthy = healthPreview !== null && healthPreview >= 15000;
@@ -70,7 +74,7 @@ export function OpenPositionModal({ open, onClose, onSuccess }: Props) {
         address: CONTRACT_ADDRESSES.CollateralVault as `0x${string}`,
         abi: COLLATERAL_VAULT_ABI,
         functionName: "openPosition",
-        args: [selectedToken as `0x${string}`, lstAmountBig, borrowAmountBig],
+        args: [selectedToken as `0x${string}`, lstAmountBig, borrowAmountBig, includeEmissions],
       });
       onSuccess();
       onClose();
@@ -144,6 +148,37 @@ export function OpenPositionModal({ open, onClose, onSuccess }: Props) {
               Max borrow at 150% collateral: ~${formatEther(totalValue * 10000n / 15000n)} USDC
             </p>
           )}
+        </div>
+
+        {/* Emissions routing */}
+        <div className="space-y-2">
+          <label className="label">Emissions Routing</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setIncludeEmissions(true)}
+              className={`p-3 rounded-lg border text-left text-xs transition-colors ${
+                includeEmissions
+                  ? "bg-brand-900/30 border-brand-600 text-slate-100"
+                  : "bg-surface border-surface-border text-slate-400 hover:bg-surface-hover"
+              }`}
+            >
+              <div className="font-semibold mb-0.5">Include in collateral</div>
+              <div className="text-[10px] opacity-80">Emissions accrue to LST value. Higher borrow power.</div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIncludeEmissions(false)}
+              className={`p-3 rounded-lg border text-left text-xs transition-colors ${
+                !includeEmissions
+                  ? "bg-brand-900/30 border-brand-600 text-slate-100"
+                  : "bg-surface border-surface-border text-slate-400 hover:bg-surface-hover"
+              }`}
+            >
+              <div className="font-semibold mb-0.5">Route to me on close</div>
+              <div className="text-[10px] opacity-80">Collateral = NPV only. Emissions accrue to contract, returned on close.</div>
+            </button>
+          </div>
         </div>
 
         {/* Health preview */}

@@ -3,9 +3,6 @@
  *
  * Addresses are loaded from environment variables so that the same frontend
  * can be pointed at localhost, HashKey testnet, or mainnet without rebuilding.
- *
- * ABIs are inlined (minimal) to avoid requiring a separate ABI build step.
- * Replace with the full compiled ABI from `contracts/artifacts/` after deploying.
  */
 
 // ── Addresses ────────────────────────────────────────────────────────────────
@@ -19,7 +16,13 @@ export const CONTRACT_ADDRESSES = {
   StablecoinPool:     process.env.NEXT_PUBLIC_STABLECOIN_POOL        ?? "0x0000000000000000000000000000000000000000",
   DisposalContract:   process.env.NEXT_PUBLIC_DISPOSAL_CONTRACT      ?? "0x0000000000000000000000000000000000000000",
   CollateralVault:    process.env.NEXT_PUBLIC_COLLATERAL_VAULT       ?? "0x0000000000000000000000000000000000000000",
+  RWATokenFactory:    process.env.NEXT_PUBLIC_RWA_TOKEN_FACTORY      ?? "0x0000000000000000000000000000000000000000",
+  Faucet:             process.env.NEXT_PUBLIC_FAUCET                 ?? "0x0000000000000000000000000000000000000000",
   RWAToken_hkCRE:     process.env.NEXT_PUBLIC_RWA_TOKEN_HKCRE        ?? "0x0000000000000000000000000000000000000000",
+  RWAToken_hkGOLD:    process.env.NEXT_PUBLIC_RWA_TOKEN_HKGOLD       ?? "0x0000000000000000000000000000000000000000",
+  RWAToken_hkSILVER:  process.env.NEXT_PUBLIC_RWA_TOKEN_HKSILVER     ?? "0x0000000000000000000000000000000000000000",
+  RWAToken_hkOIL:     process.env.NEXT_PUBLIC_RWA_TOKEN_HKOIL        ?? "0x0000000000000000000000000000000000000000",
+  RWAToken_hkCOAL:    process.env.NEXT_PUBLIC_RWA_TOKEN_HKCOAL       ?? "0x0000000000000000000000000000000000000000",
 } as const;
 
 // ── ABIs ─────────────────────────────────────────────────────────────────────
@@ -59,16 +62,20 @@ export const STABLECOIN_POOL_ABI = [
 
 export const COLLATERAL_VAULT_ABI = [
   "function positionCount() view returns (uint256)",
-  "function getPosition(uint256) view returns (tuple(address borrower, address lstToken, uint256 lstAmount, uint256 loanAmount, uint256 openFee, uint256 openTimestamp, uint8 status))",
+  "function totalActivePositions() view returns (uint256)",
+  "function totalBorrowedAllTime() view returns (uint256)",
+  "function totalLiquidatedPositions() view returns (uint256)",
+  "function getProtocolStats() view returns (uint256 activePositions, uint256 totalBorrowed, uint256 totalLiquidated, uint256 currentTotalBorrowed)",
+  "function getPosition(uint256) view returns (tuple(address borrower, address lstToken, uint256 lstAmount, uint256 loanAmount, uint256 openFee, uint256 openTimestamp, uint8 status, bool includeEmissions))",
   "function getBorrowerPositions(address) view returns (uint256[])",
   "function healthFactor(uint256) view returns (uint256)",
   "function harvestableCollateral(uint256) view returns (uint256)",
-  "function openPosition(address lstToken, uint256 lstAmount, uint256 borrowAmount)",
+  "function openPosition(address lstToken, uint256 lstAmount, uint256 borrowAmount, bool includeEmissions)",
   "function closePosition(uint256 positionId)",
   "function topUpPosition(uint256 positionId, uint256 additionalLst)",
   "function harvestPosition(uint256 positionId, uint256 lstToWithdraw, uint256 additionalBorrow)",
   "function liquidate(uint256 positionId)",
-  "event PositionOpened(uint256 indexed positionId, address indexed borrower, address lstToken, uint256 lstAmount, uint256 loanAmount, uint256 openFee)",
+  "event PositionOpened(uint256 indexed positionId, address indexed borrower, address lstToken, uint256 lstAmount, uint256 loanAmount, uint256 openFee, bool includeEmissions)",
   "event PositionClosed(uint256 indexed positionId, address indexed borrower, uint256 repaidAmount, uint256 closeFee)",
   "event PositionLiquidated(uint256 indexed positionId, address indexed borrower, uint256 auctionId)",
 ] as const;
@@ -129,13 +136,68 @@ export const RWA_TOKEN_ABI = [
   "function assetDescription() view returns (string)",
   "function documentationURI() view returns (string)",
   "function mint(address to, uint256 amount)",
+  "function grantRole(bytes32 role, address account)",
+] as const;
+
+export const FAUCET_ABI = [
+  "function mint(address token)",
+  "function mintAll()",
+  "function canMint(address token, address user) view returns (bool)",
+  "function cooldownPeriod() view returns (uint256)",
+  "function lastMint(address token, address user) view returns (uint256)",
+  "function getSupportedTokens() view returns (address[])",
+  "function isSupported(address token) view returns (bool)",
+  "function addToken(address token)",
+  "function removeToken(address token)",
+  "event TokensMinted(address indexed user, address indexed token, uint256 amount)",
+] as const;
+
+export const RWA_TOKEN_FACTORY_ABI = [
+  "function createToken(string name_, string symbol_, string assetDescription_, string documentationURI_) returns (address)",
+  "function registerToken(address tokenAddress, string name_, string symbol_, string assetDescription_)",
+  "function getTokenCount() view returns (uint256)",
+  "function getAllTokens() view returns (tuple(address tokenAddress, string name, string symbol, string assetDescription)[])",
+  "function isRegistered(address) view returns (bool)",
+  "event TokenCreated(address indexed tokenAddress, string name, string symbol, string assetDescription)",
 ] as const;
 
 // Supported RWA tokens list for UI dropdowns
-export const RWA_TOKENS: { address: string; symbol: string; name: string }[] = [
+export interface RWATokenInfo {
+  address: string;
+  symbol: string;
+  name: string;
+  assetDescription: string;
+}
+
+export const RWA_TOKENS: RWATokenInfo[] = [
   {
     address: CONTRACT_ADDRESSES.RWAToken_hkCRE,
     symbol: "hkCRE",
     name: "HashKey CRE LST",
+    assetDescription: "Commercial Real Estate Portfolio",
   },
-];
+  {
+    address: CONTRACT_ADDRESSES.RWAToken_hkGOLD,
+    symbol: "hkGOLD",
+    name: "HashKey Gold LST",
+    assetDescription: "Gold Bullion Reserve",
+  },
+  {
+    address: CONTRACT_ADDRESSES.RWAToken_hkSILVER,
+    symbol: "hkSILVER",
+    name: "HashKey Silver LST",
+    assetDescription: "Silver Bullion Reserve",
+  },
+  {
+    address: CONTRACT_ADDRESSES.RWAToken_hkOIL,
+    symbol: "hkOIL",
+    name: "HashKey Oil LST",
+    assetDescription: "Crude Oil (WTI) Futures Backed",
+  },
+  {
+    address: CONTRACT_ADDRESSES.RWAToken_hkCOAL,
+    symbol: "hkCOAL",
+    name: "HashKey Coal LST",
+    assetDescription: "Thermal Coal Forward Contracts",
+  },
+].filter(t => t.address !== "0x0000000000000000000000000000000000000000");

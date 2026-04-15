@@ -6,8 +6,10 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { formatEther, parseEther } from "viem";
 import { Settings, AlertTriangle } from "lucide-react";
 import { useProtocolConfig, useUpdateFees, useOracleValues, useUpdateOracleValues } from "@/hooks/useAdminController";
+import { useCreateRWAToken, useAllFactoryTokens } from "@/hooks/useRWATokenFactory";
 import { StatCard } from "@/components/ui/StatCard";
 import { RWA_TOKENS, CONTRACT_ADDRESSES } from "@/lib/contracts";
+import { Plus } from "lucide-react";
 
 export default function AdminPage() {
   const { isConnected } = useAccount();
@@ -54,6 +56,9 @@ export default function AdminPage() {
 
       {/* Fee settings form */}
       <FeeSettingsForm onSaved={refetch} />
+
+      {/* New RWA token */}
+      <CreateRWATokenForm />
 
       {/* Oracle settings */}
       {RWA_TOKENS.map((token) => (
@@ -181,6 +186,85 @@ function OracleSettingsForm({ token }: { token: { address: string; symbol: strin
           {saved && <span className="text-xs text-emerald-400">Updated</span>}
         </div>
       </form>
+    </div>
+  );
+}
+
+// ── Create RWA Token Form ─────────────────────────────────────────────────────
+function CreateRWATokenForm() {
+  const { createToken, isPending } = useCreateRWAToken();
+  const { tokens, refetch } = useAllFactoryTokens();
+  const [name,   setName]   = useState("");
+  const [symbol, setSymbol] = useState("");
+  const [desc,   setDesc]   = useState("");
+  const [uri,    setUri]    = useState("ipfs://QmPlaceholder");
+  const [saved,  setSaved]  = useState(false);
+  const [err,    setErr]    = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setErr("");
+    try {
+      await createToken(name, symbol, desc, uri);
+      setName(""); setSymbol(""); setDesc("");
+      setSaved(true);
+      setTimeout(() => setSaved(false), 4000);
+      refetch();
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  return (
+    <div className="card space-y-5">
+      <div>
+        <h2 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
+          <Plus className="w-4 h-4 text-brand-400" /> Deploy New RWA Token
+        </h2>
+        <p className="text-xs text-slate-500 mt-1">
+          Deploy a brand-new ERC-20 RWA LST via the RWATokenFactory. Factory admin only.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label className="label">Name</label>
+          <input className="input" placeholder="HashKey Gold LST" value={name} onChange={e => setName(e.target.value)} required />
+        </div>
+        <div>
+          <label className="label">Symbol</label>
+          <input className="input" placeholder="hkGOLD" value={symbol} onChange={e => setSymbol(e.target.value)} required />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="label">Asset Description</label>
+          <input className="input" placeholder="Physical gold reserve held by custodian" value={desc} onChange={e => setDesc(e.target.value)} required />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="label">Documentation URI</label>
+          <input className="input" placeholder="ipfs://..." value={uri} onChange={e => setUri(e.target.value)} />
+        </div>
+        <div className="sm:col-span-2 flex items-center gap-3">
+          <button type="submit" disabled={isPending} className="btn-primary">
+            {isPending ? "Deploying…" : "Deploy Token"}
+          </button>
+          {saved && <span className="text-xs text-emerald-400">Token deployed & registered</span>}
+          {err && <span className="text-xs text-red-400 break-all">{err}</span>}
+        </div>
+      </form>
+
+      {tokens.length > 0 && (
+        <div className="space-y-2 border-t border-surface-border pt-4">
+          <div className="text-xs text-slate-400 font-medium">Registered tokens ({tokens.length})</div>
+          <div className="space-y-1 font-mono text-[11px]">
+            {tokens.map((t, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="text-brand-400 w-20 shrink-0">{t.symbol}</span>
+                <span className="text-slate-300 break-all">{t.tokenAddress}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -81,10 +81,12 @@ A borrower locks their LSTs in the `CollateralVault`, receives stablecoins from 
 | `NPVOracle` | Stub oracle: Net Present Value (USD) of the underlying RWA per LST token. |
 | `RWAValuationOracle` | Aggregates the two oracles into a single USD price per token. Supports per-token risk haircuts (basis-point weights). |
 | `RWAToken` | Controlled ERC-20 representing an RWA LST. Minting/burning restricted to `MINTER_ROLE`. |
+| `RWATokenFactory` | Deploys and registers new `RWAToken` instances. Owner-gated. Used by admins to onboard new RWA classes. |
 | `MockStablecoin` | Development/testnet stablecoin (USDC-like, 6 decimals). Replace with real USDC on mainnet. |
+| `Faucet` | Testnet faucet. Mints 100 tokens of any registered asset (mUSDC + all RWA LSTs) with a 1-hour per-token per-address cooldown. |
 | `StablecoinPool` | LP pool where investors deposit stablecoins. Earns pro-rata fees from every position open and close. Share-based accounting (ERC-4626 inspired). |
 | `DisposalContract` | Handles liquidation auctions. Investors pre-credit funds; winning bidder receives LSTs, debt is repaid to the pool. |
-| `CollateralVault` | Core contract: open/close/topUp/harvest/liquidate collateral positions. |
+| `CollateralVault` | Core contract: open/close/topUp/harvest/liquidate collateral positions. Supports an **emissions-routing flag** — on open the borrower chooses whether emissions are added to collateral value or held for them until close. |
 
 ---
 
@@ -99,22 +101,36 @@ totalValuePerToken = emissionsPerToken × emissionsWeight
 
 Weights default to 100% (10 000 bp) and can be adjusted by governance to apply risk haircuts (e.g. reduce NPV weight for illiquid underlying assets).
 
-**Stub behaviour (testnet):** Oracle values are set manually via `setEmissionsPerToken` / `setNPVPerToken`. Only the contract owner and authorised updater addresses can call these.
+**Oracle research on HashKey Chain (April 2026):** At the time of building, neither Chainlink Data Feeds nor Supra Oracles had deployed price feeds on HashKey Chain, and hashfans.io does not yet expose an oracle SDK. The protocol therefore uses an **admin-push** pattern: oracle values are set by the contract owner (or authorised updater) via `setEmissionsPerToken` / `setNPVPerToken`. The frontend admin dashboard provides forms for updating these values, and the on-chain `RWAValuationOracle` is ready to be swapped for Chainlink/Supra feeds once they deploy on HashKey Chain — no other contract needs to change.
 
 **Production path:** Replace the oracle contracts with Chainlink Data Feeds or a custom push-oracle updated by a credentialled off-chain keeper (e.g. a licensed valuation agent).
+
+## Emissions Routing
+
+When opening a position the borrower chooses one of two modes:
+
+| Mode | Effect on valuation | Effect on emissions |
+|---|---|---|
+| **Include in collateral** (default) | Collateral value = emissions + NPV — higher borrow power | Emissions accrue to the LSTs held in the vault; they return to the borrower on close as part of the original LST balance |
+| **Route to me on close** | Collateral value = NPV only — more conservative | Emissions accrue to the LSTs held in the vault for the lifetime of the position; the entire LST balance (including accrued emissions) is returned to the borrower on close |
+
+The flag is stored on the `Position` and enforced on every valuation call — `topUp`, `harvest`, `liquidate`, and `healthFactor` all respect it.
 
 ---
 
 ## Position Lifecycle
 
 ```
-                ┌─────────────────────────────────────────────┐
-                │                                             │
- Borrower ──▶  openPosition(lstToken, lstAmount, borrowAmount)│
-                │  • LSTs locked in vault                     │
-                │  • Net stablecoins sent to borrower         │
-                │  • Open fee retained by pool                │
-                └────────────────┬────────────────────────────┘
+                ┌─────────────────────────────────────────────────────────┐
+                │                                                         │
+ Borrower ──▶  openPosition(lstToken, lstAmount, borrowAmount,            │
+                              includeEmissions)                           │
+                │  • LSTs locked in vault                                 │
+                │  • Net stablecoins sent to borrower                     │
+                │  • Open fee retained by pool                            │
+                │  • includeEmissions=true  → emissions count as collateral│
+                │  • includeEmissions=false → emissions returned on close │
+                └────────────────┬────────────────────────────────────────┘
                                  │
               ┌──────────────────┼──────────────────────┐
               │                  │                      │
@@ -212,10 +228,11 @@ Real-World-Asset-Collateral-Service/
 ├── frontend/                       # Next.js 14 App Router
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── page.tsx            # Landing page
+│   │   │   ├── page.tsx            # Landing page + live protocol stats
 │   │   │   ├── borrower/page.tsx   # Borrower dashboard
 │   │   │   ├── investor/page.tsx   # Investor dashboard
-│   │   │   └── admin/page.tsx      # Admin dashboard
+│   │   │   ├── admin/page.tsx      # Admin dashboard + factory form
+│   │   │   └── faucet/page.tsx     # Testnet faucet
 │   │   ├── components/
 │   │   │   ├── borrower/           # OpenPositionModal, PositionCard
 │   │   │   ├── investor/           # StablecoinPoolPanel, DisposalPoolPanel
@@ -226,6 +243,9 @@ Real-World-Asset-Collateral-Service/
 │   │   │   ├── useStablecoinPool.ts
 │   │   │   ├── useDisposalContract.ts
 │   │   │   ├── useAdminController.ts
+│   │   │   ├── useFaucet.ts
+│   │   │   ├── useRWATokenFactory.ts
+│   │   │   ├── useProtocolStats.ts
 │   │   │   └── useToken.ts
 │   │   ├── lib/
 │   │   │   ├── contracts.ts        # Addresses + minimal ABIs
@@ -400,30 +420,43 @@ The test suite covers:
 | `NEXT_PUBLIC_STABLECOIN_POOL` | StablecoinPool address |
 | `NEXT_PUBLIC_DISPOSAL_CONTRACT` | DisposalContract address |
 | `NEXT_PUBLIC_COLLATERAL_VAULT` | CollateralVault address |
+| `NEXT_PUBLIC_RWA_TOKEN_FACTORY` | RWATokenFactory address |
+| `NEXT_PUBLIC_FAUCET` | Faucet address |
 | `NEXT_PUBLIC_RWA_TOKEN_HKCRE` | hkCRE RWAToken address |
+| `NEXT_PUBLIC_RWA_TOKEN_HKGOLD` | hkGOLD RWAToken address |
+| `NEXT_PUBLIC_RWA_TOKEN_HKSILVER` | hkSILVER RWAToken address |
+| `NEXT_PUBLIC_RWA_TOKEN_HKOIL` | hkOIL RWAToken address |
+| `NEXT_PUBLIC_RWA_TOKEN_HKCOAL` | hkCOAL RWAToken address |
 
 ---
 
 ## Contract Addresses (Testnet)
 
-> To be updated after first deployment.
+Deployed 2026-04-10 (v2 — RWA factory + faucet + multi-asset).
 
 | Contract | Address |
 |---|---|
-| MockStablecoin (mUSDC) | TBD |
-| EmissionsOracle | TBD |
-| NPVOracle | TBD |
-| RWAValuationOracle | TBD |
-| AdminController | TBD |
-| StablecoinPool | TBD |
-| DisposalContract | TBD |
-| CollateralVault | TBD |
-| RWAToken (hkCRE) | TBD |
+| MockStablecoin (mUSDC) | `0xa3727c5952054635fb220aBf3A714222457bD91d` |
+| EmissionsOracle        | `0x30010dD449797F9CE8CFb346e9D235d1C6057D83` |
+| NPVOracle              | `0x52be1c1c63D31E4517b2e8b6d3536b3340c7259F` |
+| RWAValuationOracle     | `0x9209C5A120FB1adF1De99Cf83be1874e4Be6BE1e` |
+| AdminController        | `0x0c356E7Ba93e9203894259401AA0094237eAA2CC` |
+| StablecoinPool         | `0x0C753D786385e2f47eBC3d945F123edcB674Ae19` |
+| DisposalContract       | `0x2dAE4688B740a9FF42DE9bD259bFE87E29bb5979` |
+| CollateralVault        | `0xf86D0E0018B12eb0978FD4E3c7dcC36F55d63b0F` |
+| RWATokenFactory        | `0x2C072312CD9577D12524Ac44e21a4E3215c13194` |
+| Faucet                 | `0xc45d6EE409d9e358B96B0c25bE3F7E3b0e563D3a` |
+| RWAToken hkCRE         | `0xEa9919b7167feC5e389dF6f006E4F6446f699610` |
+| RWAToken hkGOLD        | `0xB7A261732727e4D410c696821b0Ce28913E5C978` |
+| RWAToken hkSILVER      | `0x14b5df6B56be0DfbE684114b5b3D38F3C21d469A` |
+| RWAToken hkOIL         | `0xB8Fbb7baDa697b8CA969D6A3876Bb1B67021451D` |
+| RWAToken hkCOAL        | `0x7B8bd123c21b2B9fD6581225B9fCE9af56E6b229` |
 
 - **Network:** HashKey Chain Testnet
 - **Chain ID:** `133`
-- **RPC:** `https://hashkeychain-testnet.alt.technology`
-- **Explorer:** `https://hashkeychain-testnet-explorer.alt.technology`
+- **RPC:** `https://testnet.hsk.xyz`
+- **Explorer:** `https://testnet-explorer.hsk.xyz`
+- **Deployer:** `0x1D6a32cAcf1b8539af2125ACf037B2b76806a89b`
 
 ---
 
