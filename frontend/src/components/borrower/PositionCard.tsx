@@ -46,7 +46,7 @@ export function PositionCard({ positionId, onRefresh }: Props) {
     functionName: "healthFactor",
     args: [positionId],
   });
-  const healthFactor = hf ? Number(hf) : 0;
+  const healthFactor = hf ? Number(hf) / 1e12 : 0;
 
   if (!position) return (
     <div className="card animate-pulse h-32" />

@@ -45,7 +45,7 @@ export function usePosition(positionId: bigint) {
 
   return {
     position: pos as Position | undefined,
-    healthFactor: hf ? Number(hf) : undefined,
+    healthFactor: hf ? Number(hf) / 1e12 : undefined,
     harvestable: harvestable as bigint | undefined,
   };
 }
